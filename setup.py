@@ -10,7 +10,7 @@ import requests
 
 logfile = "easeelog.log"
 
-_LOGGER = logging.basicConfig(handlers=[RotatingFileHandler(logfile, 
+logging.basicConfig(handlers=[RotatingFileHandler(logfile, 
                     maxBytes=500000, backupCount=0)], 
 level=logging.INFO,
 format="[%(asctime)s] %(levelname)s %(message)s",
@@ -19,22 +19,22 @@ datefmt='%Y-%m-%d %H:%M:%S')
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Successfully connected to MQTT-broker")
-        _LOGGER.info("Successfully connected to MQTT-broker")
+        logging.info("Successfully connected to MQTT-broker")
     elif rc == 1:
         print("connection refused, unacceptable protocol version")
-        _LOGGER.warning("connection refused, unacceptable protocol version")
+        logging.warning("connection refused, unacceptable protocol version")
     elif rc == 2:
         print("Connection refused, identifier rejected")
-        _LOGGER.warning("Connection refused, identifier rejected")
+        logging.warning("Connection refused, identifier rejected")
     elif rc == 3:
         print("Connection refused, server unavailable")
-        _LOGGER.warning("Connection refused, server unavailable")
+        logging.warning("Connection refused, server unavailable")
     elif rc == 4:
         print("Connection refused, bad user name or password")
-        _LOGGER.warning("Connection refused, bad user name or password")
+        logging.warning("Connection refused, bad user name or password")
     elif rc == 5:
     	print("Connection refused, not authorized")
-    	_LOGGER.warning("Connection refused, not authorized")
+    	logging.warning("Connection refused, not authorized")
 
 
 def get_chargers():
@@ -47,9 +47,9 @@ def get_chargers():
     parsed = resp.json()
 
     if resp.status_code == 200:
-        _LOGGER.info("Recieved chargers from Easee")
+        logging.info("Recieved chargers from Easee")
     else:
-        _LOGGER.warning("Failed to fetch chargers. Response code: "
+        logging.warning("Failed to fetch chargers. Response code: "
                         f"{resp.status_code}")
         return False
 
@@ -58,7 +58,7 @@ def get_chargers():
         for charger in circuit.get("chargers", []):
             chargers.append(charger['id'])
 
-    _LOGGER.info(f"Chargers identified: {chargers}")
+    logging.info(f"Chargers identified: {chargers}")
 
     return chargers
 
@@ -118,7 +118,7 @@ if __name__ == "__main__":
         except:
             client.loop_stop()
             print("Couldn't connect to the broker, please check settings.")
-            _LOGGER("Failed to connect to MQTT-broker")       
+            logging.("Failed to connect to MQTT-broker")       
 
     print("Available QOS-levels of MQTT: ")
     print("0 - At most once")
@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     print()
     print("Setup complete. The program can now be started.")
-    _LOGGER.info("Setup complete. The program can now be started.")
+    logging.info("Setup complete. The program can now be started.")
     print()
 
     with open('settings.json', 'w') as fp:
