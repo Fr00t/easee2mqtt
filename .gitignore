@@ -1,0 +1,6 @@
+/env/
+/.vscode/
+credentials.txt
+settings.json
+/__pycache__/
+easeelog.log
