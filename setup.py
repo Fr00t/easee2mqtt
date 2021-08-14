@@ -118,7 +118,7 @@ if __name__ == "__main__":
         except:
             client.loop_stop()
             print("Couldn't connect to the broker, please check settings.")
-            logging.("Failed to connect to MQTT-broker")       
+            logging.warning("Failed to connect to MQTT-broker")       
 
     print("Available QOS-levels of MQTT: ")
     print("0 - At most once")
