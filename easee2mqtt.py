@@ -177,9 +177,6 @@ def get_config(charger):
     return parsed
 
 if __name__ == "__main__":
-    print(f"Directory of current file: {os.path.dirname(os.path.abspath(__file__))}")
-    print(f"Current working directory: {os.path.abspath(os.getcwd())}")
-
     try:
         settingspath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'settings.json')
         print(f"Settings-path: {settingspath}")
