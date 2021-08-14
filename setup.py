@@ -82,7 +82,7 @@ if __name__ == "__main__":
             settings['easee_password'] = easee_password
             print("Successfully connected to Easee!")
 
-            chargers = get_chargers(access_token)
+            chargers = get_chargers()
             print("The following chargers has been found on this account. "
                   "Note that the charger ID shown here will make up the MQTT-topic.")
             print("If you get a new charger, please re-run settings.")
