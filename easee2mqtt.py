@@ -8,6 +8,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 import paho.mqtt.client as mqtt
 from requests.api import request
+import os
 
 logfile = "easeelog.log"
 
@@ -176,8 +177,13 @@ def get_config(charger):
     return parsed
 
 if __name__ == "__main__":
+    print(f"Directory of current file: {os.path.dirname(os.path.abspath(__file__))}")
+    print(f"Current working directory: {os.path.abspath(os.getcwd())}")
+
     try:
-        with open('settings.json') as json_file:
+        settingspath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'settings.json')
+        print(f"Settings-path: {settingspath}")
+        with open(settingspath) as json_file:
             settings = json.load(json_file)
         logging.debug("Successfully opened settings.")
     except FileNotFoundError:
