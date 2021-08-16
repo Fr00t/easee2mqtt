@@ -70,7 +70,7 @@ def response_codes(code):
 
 
 def get_latest_session(charger_id):
-    details_url = "https://api.easee.cloud/api/chargers/EH030700/sessions/latest"
+    details_url = "https://api.easee.cloud/api/chargers/{charger_id}/sessions/latest"
     headers = {
         "Accept": "application/json",
         "Authorization": "Bearer " + settings['access_token']}
