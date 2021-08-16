@@ -89,7 +89,7 @@ def check_expiration():
         settings['expiry'] = expiry
         with open('settings.json', 'w') as fp:
             json.dump(settings, fp, indent=4, sort_keys=True)
-        logging("Successfully retrieved and stored a new token.")
+        logging.info("Successfully retrieved and stored a new token.")
 
 
 def get_state(charger):
