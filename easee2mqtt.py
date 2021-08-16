@@ -9,6 +9,7 @@ from logging.handlers import RotatingFileHandler
 import paho.mqtt.client as mqtt
 from requests.api import request
 import os
+from datetime import datetime, timezone
 
 logfile = "easeelog.log"
 
@@ -105,6 +106,7 @@ def publish_state(charger):
     state = get_state(charger)
     config = get_config(charger)
     latest_session = get_latest_session(charger)
+    latest_pulse = datetime.strptime(state['latestPulse'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).astimezone(tz=None).strftime("%Y-%m-%d %H:%M:%S")
     if state['totalPower'] > 0:
         charging_state = "True"
     else:
@@ -119,7 +121,7 @@ def publish_state(charger):
     client.publish(f"easee2MQTT/{charger}/charging_enabled", config['isEnabled'])
     client.publish(f"easee2MQTT/{charger}/charging", charging_state)
     client.publish(f"easee2MQTT/{charger}/smartcharging_enabled", state['smartCharging'])
-    client.publish(f"easee2MQTT/{charger}/latest_pulse", state['latestPulse'])
+    client.publish(f"easee2MQTT/{charger}/latest_pulse", latest_pulse)
 
 def on_message(client, userdata, message):
     print(f"Message received on topic: {message.topic}, payload: {str(message.payload.decode('utf-8'))}")
@@ -165,6 +167,11 @@ def on_message(client, userdata, message):
         resp = requests.post(url, headers=headers, json = data)
         print(f"Smartcharging response: {response_codes(resp.status_code)}")
         logging.info(f"Smartcharging response: {response_codes(resp.status_code)}")
+    
+    time.sleep(2)
+    publish_state(charger)
+    time.sleep(5)
+    publish_state(charger)
 
 
 def get_config(charger):

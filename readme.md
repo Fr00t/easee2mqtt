@@ -37,7 +37,7 @@ easee2MQTT/{charger_ID}/charging | True if currently charging | bool
 easee2MQTT/{charger_ID}/charging_enabled | True if charging is enabled | bool
 easee2MQTT/{charger_ID}/charging | True if currently charging | bool
 easee2MQTT/{charger_ID}/smartcharging_enabled | Whether smart-charging is enabled | bool
-easee2MQTT/{charger_ID}/latest_pulse | Last pulse from charger | ISO8601 datetime
+easee2MQTT/{charger_ID}/latest_pulse | Last pulse from charger | Datetime (%Y-%m-%d %H:%M:%S)
 
 ### Subscribed topics
 You can publish to these topics to control your charger. 
