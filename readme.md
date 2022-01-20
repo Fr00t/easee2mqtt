@@ -1,7 +1,7 @@
 ## About
 This program will transfer data from and control your Easee charging robot via their Dashboard to/from a MQTT-broker of your choice. You can read power usage, current state of the charger and it allows you to start/stop charging and lock/unlock the cable.
 
-Easee has their API documented [here](https://api.easee.cloud/index.html). There are plenty of endpoints, data and control here. For this program I've selected a few that seems most relevant and useful to me. If you have other needs let me know and I'll see what can be done.
+Easee has their API documented [here](https://developer.easee.cloud/reference/post_api-accounts-token). There are plenty of endpoints, data and control here. For this program I've selected a few that seems most relevant and useful to me. If you have other needs let me know and I'll see what can be done.
 
 
 ## Prerequisites
