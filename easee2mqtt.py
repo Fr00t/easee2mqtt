@@ -71,12 +71,15 @@ def response_codes(code):
 
 def get_latest_session(charger_id):
     details_url = "https://api.easee.cloud/api/chargers/{charger_id}/sessions/latest"
+    
     headers = {
         "Accept": "application/json",
         "Authorization": "Bearer " + settings['access_token']}
 
     resp = requests.request("GET", url = details_url, headers = headers)
     parsed = resp.json()
+    if resp.status_code != 200:
+        logging.warning(f"Response code {resp.status_code} when trying to get_latest_session")
     return parsed
 
 
@@ -99,6 +102,8 @@ def get_state(charger):
         "Authorization": "Bearer " + settings['access_token']}
     resp = requests.request("GET", url = url, headers=headers)
     parsed = resp.json()
+    if resp.status_code != 200:
+        logging.warning(f"Response code {resp.status_code} when trying to get_state")
     return parsed
 
 
@@ -181,6 +186,8 @@ def get_config(charger):
         "Authorization": "Bearer " + settings['access_token']}
     resp = requests.request("GET", url = url, headers=headers)
     parsed = resp.json()
+    if resp.status_code != 200:
+        logging.warning(f"Response code {resp.status_code} when trying to get_latest_session")
     return parsed
 
 if __name__ == "__main__":
