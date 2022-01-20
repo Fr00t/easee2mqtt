@@ -33,8 +33,8 @@ def on_connect(client, userdata, flags, rc):
         print("Connection refused, bad user name or password")
         logging.warning("Connection refused, bad user name or password")
     elif rc == 5:
-    	print("Connection refused, not authorized")
-    	logging.warning("Connection refused, not authorized")
+        print("Connection refused, not authorized")
+        logging.warning("Connection refused, not authorized")
 
 
 def get_chargers():
