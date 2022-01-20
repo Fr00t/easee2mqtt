@@ -70,7 +70,7 @@ def response_codes(code):
 
 
 def get_latest_session(charger_id):
-    details_url = "https://api.easee.cloud/api/chargers/{charger_id}/sessions/latest"
+    details_url = f"https://api.easee.cloud/api/chargers/{charger_id}/sessions/latest"
     
     headers = {
         "Accept": "application/json",
@@ -95,8 +95,8 @@ def check_expiration():
         logging.info("Successfully retrieved and stored a new token.")
 
 
-def get_state(charger):
-    url = "https://api.easee.cloud/api/chargers/"+charger+"/state"
+def get_state(charger_id):
+    url = f"https://api.easee.cloud/api/chargers/{charger_id}/state"
     headers = {
         "Accept": "application/json",
         "Authorization": "Bearer " + settings['access_token']}
