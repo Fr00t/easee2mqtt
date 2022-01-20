@@ -129,7 +129,6 @@ def publish_state(charger):
     client.publish(f"easee2MQTT/{charger}/latest_pulse", latest_pulse)
 
 def on_message(client, userdata, message):
-    print(f"Message received on topic: {message.topic}, payload: {str(message.payload.decode('utf-8'))}")
     logging.info(f"Message received on topic: {message.topic}, payload: {str(message.payload.decode('utf-8'))}")
     charger = message.topic.split("/")[1]
     headers = {
@@ -142,7 +141,6 @@ def on_message(client, userdata, message):
             "state": str(message.payload.decode("utf-8"))
         }
         resp = requests.post(url, headers= headers, json = data)
-        print(f"Cable lock response: {response_codes(resp.status_code)}")
         logging.info(f"Cable lock response: {response_codes(resp.status_code)}")
 
     elif message.topic.split("/")[2] == "charging_enabled":
@@ -153,7 +151,6 @@ def on_message(client, userdata, message):
                 'enabled' : str(message.payload.decode("utf-8")).title()
             }
             resp = requests.post(url, headers=headers, json = data)
-            print(f"Is_enabled response: {response_codes(resp.status_code)}")
             logging.info(f"Is_enabled response: {response_codes(resp.status_code)}")
         else:
             logging.warning("Couldn't identify payload. 'true' or 'false' is only supported payloads.")
@@ -170,7 +167,6 @@ def on_message(client, userdata, message):
                 "smartCharging" : message.payload.decode("utf-8").title()
             }
         resp = requests.post(url, headers=headers, json = data)
-        print(f"Smartcharging response: {response_codes(resp.status_code)}")
         logging.info(f"Smartcharging response: {response_codes(resp.status_code)}")
     
     time.sleep(2)
@@ -193,12 +189,10 @@ def get_config(charger):
 if __name__ == "__main__":
     try:
         settingspath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'settings.json')
-        print(f"Settings-path: {settingspath}")
         with open(settingspath) as json_file:
             settings = json.load(json_file)
         logging.debug("Successfully opened settings.")
     except FileNotFoundError:
-        print("Couldn't find settings in folder. Please run setup.py to get started")
         logging.warning(f"Couldn't find settings. Run setup.py and make sure you are in the right folder")
         sys.exit()
     
@@ -228,7 +222,6 @@ if __name__ == "__main__":
 
             for charger in settings['chargers']:
                 try:
-                    print("Fetching and publishing latest stats of chargers.")
                     logging.debug(f"Fetching and publishing latest stats of {charger}")
                     publish_state(charger)
                 except:
