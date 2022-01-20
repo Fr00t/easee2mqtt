@@ -5,7 +5,7 @@ import time
 import json
 import logging
 from logging.handlers import RotatingFileHandler
-from easee_mqtt import get_access_token
+from easee2mqtt import get_access_token
 import requests
 
 logfile = "easeelog.log"
