@@ -127,6 +127,7 @@ def publish_state(charger):
     client.publish(f"easee2MQTT/{charger}/charging", charging_state)
     client.publish(f"easee2MQTT/{charger}/smartcharging_enabled", state['smartCharging'])
     client.publish(f"easee2MQTT/{charger}/latest_pulse", latest_pulse)
+    client.publish(f"easee2MQTT/{charger}/charging_current", state['dynamicChargerCurrent'])
 
 def on_message(client, userdata, message):
     logging.info(f"Message received on topic: {message.topic}, payload: {str(message.payload.decode('utf-8'))}")
