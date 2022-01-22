@@ -38,6 +38,7 @@ easee2MQTT/{charger_ID}/charging_enabled | True if charging is enabled | bool
 easee2MQTT/{charger_ID}/charging | True if currently charging | bool
 easee2MQTT/{charger_ID}/smartcharging_enabled | Whether smart-charging is enabled | bool
 easee2MQTT/{charger_ID}/latest_pulse | Last pulse from charger | Datetime (%Y-%m-%d %H:%M:%S)
+easee2MQTT/{charger_ID}/charging_current | Maximum dynamic charging current | Ampere
 
 ### Subscribed topics
 You can publish to these topics to control your charger. 
@@ -47,6 +48,7 @@ Topic | Payload | Description
 easee2MQTT/{charger_ID}/cable_lock/set | {true} or {false} | Locks or unlocks cable in charger*
 easee2MQTT/{charger_ID}/charging_enabled/set | {true} or {false} | Enables or diables charger
 easee2MQTT/{charger_ID}/smartcharging_enabled/set | {true} or {false} | Enables or diables smartcharging
+easee2MQTT/{charger_ID}/charging_current/set | INT | Sets maximum charging current
 easee2MQTT/{charger_ID}/ping | {true} | Force script to publish ahead of schedule
 
 \* This will only work when the cable is not in a car.

@@ -130,6 +130,7 @@ def publish_state(charger):
 
 def on_message(client, userdata, message):
     logging.info(f"Message received on topic: {message.topic}, payload: {str(message.payload.decode('utf-8'))}")
+    print(f"Message received on topic: {message.topic}, payload: {str(message.payload.decode('utf-8'))} Type: {type(message.payload)}")
     charger = message.topic.split("/")[1]
     headers = {
             "Accept": "application/json",
@@ -153,7 +154,7 @@ def on_message(client, userdata, message):
             resp = requests.post(url, headers=headers, json = data)
             logging.info(f"Is_enabled response: {response_codes(resp.status_code)}")
         else:
-            logging.warning("Couldn't identify payload. 'true' or 'false' is only supported payloads.")
+            logging.warning("Couldn't identify payload. 'true' or 'false' is only supported values.")
         
     
     elif message.topic.split("/")[2] == "ping":
@@ -166,8 +167,19 @@ def on_message(client, userdata, message):
             data = {
                 "smartCharging" : message.payload.decode("utf-8").title()
             }
-        resp = requests.post(url, headers=headers, json = data)
-        logging.info(f"Smartcharging response: {response_codes(resp.status_code)}")
+            resp = requests.post(url, headers=headers, json = data)
+            logging.info(f"Smartcharging response: {response_codes(resp.status_code)}")
+    
+    elif message.topic.split("/")[2] == "charging_current":
+        if float(message.payload.decode('utf-8')) < 33.0:
+            url = "https://api.easee.cloud/api/chargers/"+charger+"/settings"
+            data = {
+                "dynamicChargerCurrent" : message.payload.decode('utf-8')
+            }
+            resp = requests.post(url, headers=headers, json = data)
+            logging.info(f"Charging_current response: {response_codes(resp.status_code)}")
+        else:
+            logging.warning(f"Couldn't publish new charging_current")
     
     time.sleep(2)
     publish_state(charger)
@@ -210,6 +222,7 @@ if __name__ == "__main__":
         client.subscribe("easee2MQTT/"+charger+"/charging_enabled/set")
         client.subscribe("easee2MQTT/"+charger+"/ping")
         client.subscribe("easee2MQTT/"+charger+"/smartcharging_enabled/set")
+        client.subscribe("easee2MQTT/"+charger+"/charging_current/set")
     client.on_message = on_message
     
 
@@ -223,6 +236,7 @@ if __name__ == "__main__":
             for charger in settings['chargers']:
                 try:
                     logging.debug(f"Fetching and publishing latest stats of {charger}")
+                    print(f"Fetching and publishing latest stats of {charger}")
                     publish_state(charger)
                 except:
                     logging.warning(f"Failed to fetch and publish new stats of {charger}. Will retry in 5 minutes.")
