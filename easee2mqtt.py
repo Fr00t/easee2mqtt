@@ -9,6 +9,7 @@ from logging.handlers import RotatingFileHandler
 import paho.mqtt.client as mqtt
 from requests.api import request
 import os
+import threading
 from datetime import datetime, timezone
 
 logfile = "easeelog.log"
@@ -93,6 +94,8 @@ def check_expiration():
         with open('settings.json', 'w') as fp:
             json.dump(settings, fp, indent=4, sort_keys=True)
         logging.info("Successfully retrieved and stored a new token.")
+    else:
+        logging.info("Token is not up for refresh.")
 
 
 def get_state(charger_id):
@@ -112,6 +115,7 @@ def publish_state(charger):
     config = get_config(charger)
     latest_session = get_latest_session(charger)
     latest_pulse = datetime.strptime(state['latestPulse'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).astimezone(tz=None).strftime("%Y-%m-%d %H:%M:%S")
+    logging.debug(f"Publish_state - Latest pulse: {latest_pulse}")
     if state['totalPower'] > 0:
         charging_state = "True"
     else:
@@ -129,9 +133,9 @@ def publish_state(charger):
     client.publish(f"easee2MQTT/{charger}/latest_pulse", latest_pulse)
     client.publish(f"easee2MQTT/{charger}/charging_current", state['dynamicChargerCurrent'])
 
+
 def on_message(client, userdata, message):
     logging.info(f"Message received on topic: {message.topic}, payload: {str(message.payload.decode('utf-8'))}")
-    print(f"Message received on topic: {message.topic}, payload: {str(message.payload.decode('utf-8'))} Type: {type(message.payload)}")
     charger = message.topic.split("/")[1]
     headers = {
             "Accept": "application/json",
@@ -143,8 +147,8 @@ def on_message(client, userdata, message):
             "state": str(message.payload.decode("utf-8"))
         }
         resp = requests.post(url, headers= headers, json = data)
-        logging.info(f"Cable lock response: {response_codes(resp.status_code)}")
-
+        callback_topic = f"easee2MQTT/{charger}/cable_lock"
+        
     elif message.topic.split("/")[2] == "charging_enabled":
         url = "https://api.easee.cloud/api/chargers/"+charger+"/settings"
         if (str(message.payload.decode("utf-8")).casefold() == "true" or 
@@ -153,12 +157,14 @@ def on_message(client, userdata, message):
                 'enabled' : str(message.payload.decode("utf-8")).title()
             }
             resp = requests.post(url, headers=headers, json = data)
-            logging.info(f"Is_enabled response: {response_codes(resp.status_code)}")
+            callback_topic = f"easee2MQTT/{charger}/charging_enabled"
+            
         else:
             logging.warning("Couldn't identify payload. 'true' or 'false' is only supported values.")
         
     
     elif message.topic.split("/")[2] == "ping":
+        logging.info("Running publish_state from a manual ping")
         publish_state(charger)
 
     elif message.topic.split("/")[2] == "smartcharging_enabled":
@@ -169,8 +175,8 @@ def on_message(client, userdata, message):
                 "smartCharging" : message.payload.decode("utf-8").title()
             }
             resp = requests.post(url, headers=headers, json = data)
-            logging.info(f"Smartcharging response: {response_codes(resp.status_code)}")
-    
+            callback_topic = f"easee2MQTT/{charger}/smartcharging_enabled"
+            
     elif message.topic.split("/")[2] == "charging_current":
         if float(message.payload.decode('utf-8')) < 33.0:
             url = "https://api.easee.cloud/api/chargers/"+charger+"/settings"
@@ -178,14 +184,29 @@ def on_message(client, userdata, message):
                 "dynamicChargerCurrent" : message.payload.decode('utf-8')
             }
             resp = requests.post(url, headers=headers, json = data)
-            logging.info(f"Charging_current response: {response_codes(resp.status_code)}")
+            callback_topic = f"easee2MQTT/{charger}/charging_current"
         else:
             logging.warning(f"Couldn't publish new charging_current")
+   
+    try:
+        logging.info(f"Manually publishing setting {message.topic.split('/')[2]} for {charger}")
+        client.publish(callback_topic, message.payload.decode('utf-8'))        
+        t = threading.Timer(5.0, publish_state, [charger])
+        t2 = threading.Timer(15.0, publish_state, [charger])
+        t.start()
+        t2.start()
     
-    time.sleep(2)
-    publish_state(charger)
-    time.sleep(5)
-    publish_state(charger)
+    except:
+        logging.warning(f"Couldn't publish manually for message: {message}")
+   
+    try:
+        #Log a warning if we still have a status_code
+        if resp.status_code == 200 or resp.status_code ==202:
+            logging.info(f"Response {response_codes(resp.status_code)} - Payload: {message.payload.decode('utf-8')}")
+        else:
+            logging.warning(f"Failed to send command to charger. Response code {resp.status_code} - {response_codes(resp.status_code)}")
+    except:
+        logging.warning(f"No status_code from recieved message: {message}")
 
 
 def get_config(charger):
@@ -200,11 +221,12 @@ def get_config(charger):
     return parsed
 
 if __name__ == "__main__":
+    logging.info("Script is starting. Looking for settings")
     try:
         settingspath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'settings.json')
         with open(settingspath) as json_file:
             settings = json.load(json_file)
-        logging.debug("Successfully opened settings.")
+        logging.info("Successfully opened settings.")
     except FileNotFoundError:
         logging.warning(f"Couldn't find settings. Run setup.py and make sure you are in the right folder")
         sys.exit()
@@ -237,7 +259,6 @@ if __name__ == "__main__":
             for charger in settings['chargers']:
                 try:
                     logging.debug(f"Fetching and publishing latest stats of {charger}")
-                    print(f"Fetching and publishing latest stats of {charger}")
                     publish_state(charger)
                 except:
                     logging.warning(f"Failed to fetch and publish new stats of {charger}. Will retry in 5 minutes.")
