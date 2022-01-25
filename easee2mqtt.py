@@ -191,10 +191,8 @@ def on_message(client, userdata, message):
     try:
         logging.info(f"Manually publishing setting {message.topic.split('/')[2]} for {charger}")
         client.publish(callback_topic, message.payload.decode('utf-8'))        
-        t = threading.Timer(5.0, publish_state, [charger])
-        t2 = threading.Timer(15.0, publish_state, [charger])
+        t = threading.Timer(15.0, publish_state, [charger])
         t.start()
-        t2.start()
     
     except:
         logging.warning(f"Couldn't publish manually for message: {message}")
