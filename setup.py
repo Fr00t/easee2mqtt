@@ -131,15 +131,15 @@ if __name__ == "__main__":
     mqtt_qos = input("Input QOS-level, recommended 1: ")
     if mqtt_qos == '':
         mqtt_qos = 1
-    settings['mqtt_adress'] = mqtt_adress
-    settings['mqtt_port'] = mqtt_port
-    settings['mqtt_qos'] = mqtt_qos
+    settings['mqtt_adress'] = int(mqtt_adress)
+    settings['mqtt_port'] = int(mqtt_port)
+    settings['mqtt_qos'] = int(mqtt_qos)
     settings['debuglevel'] = "info"
 
     polling_interval = input("Input polling interval of charger. Default = 300: ")
     if polling_interval == '':
         polling_interval = 300
-    settings['polling_interval'] = polling_interval
+    settings['polling_interval'] = int(polling_interval)
 
     print()
     print("Setup complete. The program can now be started.")
