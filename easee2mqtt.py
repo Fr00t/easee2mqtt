@@ -12,7 +12,10 @@ import os
 import threading
 from datetime import datetime, timezone
 
-logfile = "easeelog.log"
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+logfile = os.path.join(dir_path, "easeelog.log")
+print(logfile)
 
 logging.basicConfig(handlers=[RotatingFileHandler(logfile, 
                     maxBytes=500000, 
@@ -91,7 +94,8 @@ def check_expiration():
         access_token, expiry = get_access_token(settings['easee_username'], settings['easee_password'])
         settings['access_token'] = access_token
         settings['expiry'] = expiry
-        with open('settings.json', 'w') as fp:
+        settingspath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'settings.json')
+        with open(settingspath, 'w') as fp:
             json.dump(settings, fp, indent=4, sort_keys=True)
         logging.info("Successfully retrieved and stored a new token.")
     else:
@@ -226,6 +230,11 @@ if __name__ == "__main__":
         settingspath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'settings.json')
         with open(settingspath) as json_file:
             settings = json.load(json_file)
+            try:
+                polling_interval = settings['polling_interval']
+            except KeyError:
+                logging.info("Couldn't find polling_interval in settings, defaulting to 300s")
+                polling_interval = 300
         logging.info("Successfully opened settings.")
     except FileNotFoundError:
         logging.warning(f"Couldn't find settings. Run setup.py and make sure you are in the right folder")
@@ -263,7 +272,7 @@ if __name__ == "__main__":
                 except:
                     logging.warning(f"Failed to fetch and publish new stats of {charger}. Will retry in 5 minutes.")
 
-            time.sleep(300)
+            time.sleep(polling_interval)
 
     except KeyboardInterrupt:
         print("Exiting program")
