@@ -4,11 +4,14 @@ import paho.mqtt.client as mqtt
 import time
 import json
 import logging
+import os
 from logging.handlers import RotatingFileHandler
 from easee2mqtt import get_access_token
 import requests
 
-logfile = "easeelog.log"
+dir_path = os.path.dirname(os.path.realpath(__file__))
+logfile = os.path.join(dir_path, "easeelog.log")
+print(logfile)
 
 logging.basicConfig(handlers=[RotatingFileHandler(logfile, 
                     maxBytes=500000, backupCount=0)], 
@@ -133,11 +136,17 @@ if __name__ == "__main__":
     settings['mqtt_qos'] = mqtt_qos
     settings['debuglevel'] = "info"
 
+    polling_interval = input("Input polling interval of charger. Default = 300: ")
+    if polling_interval == '':
+        polling_interval = 300
+    settings['polling_interval'] = polling_interval
+
     print()
     print("Setup complete. The program can now be started.")
     logging.info("Setup complete. The program can now be started.")
     print()
 
-    with open('settings.json', 'w') as fp:
+    settingspath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'settings.json')
+    with open(settingspath, 'w') as fp:
         json.dump(settings, fp, indent=4, sort_keys=True)
             
