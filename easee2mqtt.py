@@ -95,7 +95,7 @@ def check_expiration():
             json.dump(settings, fp, indent=4, sort_keys=True)
         logging.info("Successfully retrieved and stored a new token.")
     else:
-        logging.info("Token is not up for refresh.")
+        logging.debug("Token is not up for refresh.")
 
 
 def get_state(charger_id):
