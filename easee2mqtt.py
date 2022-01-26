@@ -189,10 +189,11 @@ def on_message(client, userdata, message):
             logging.warning(f"Couldn't publish new charging_current")
    
     try:
-        logging.info(f"Manually publishing setting {message.topic.split('/')[2]} for {charger}")
-        client.publish(callback_topic, message.payload.decode('utf-8'))        
-        t = threading.Timer(15.0, publish_state, [charger])
-        t.start()
+        if message.topic.split("/")[2] != "ping":
+            logging.info(f"Manually publishing setting {message.topic.split('/')[2]} for {charger}")
+            client.publish(callback_topic, message.payload.decode('utf-8'))        
+            t = threading.Timer(15.0, publish_state, [charger])
+            t.start()
     
     except:
         logging.warning(f"Couldn't publish manually for message: {message}")
@@ -220,6 +221,7 @@ def get_config(charger):
 
 if __name__ == "__main__":
     logging.info("Script is starting. Looking for settings")
+    print("Script is starting. Looking for settings")
     try:
         settingspath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'settings.json')
         with open(settingspath) as json_file:
