@@ -131,7 +131,7 @@ if __name__ == "__main__":
     mqtt_qos = input("Input QOS-level, recommended 1: ")
     if mqtt_qos == '':
         mqtt_qos = 1
-    settings['mqtt_adress'] = int(mqtt_adress)
+    settings['mqtt_adress'] = mqtt_adress
     settings['mqtt_port'] = int(mqtt_port)
     settings['mqtt_qos'] = int(mqtt_qos)
     settings['debuglevel'] = "info"
