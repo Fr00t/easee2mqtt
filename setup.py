@@ -57,11 +57,14 @@ def get_chargers():
         return False
 
     chargers = []
-    for circuit in parsed[0].get("circuits", []):
-        for charger in circuit.get("chargers", []):
-            chargers.append(charger['id'])
-
-    logging.info(f"Chargers identified: {chargers}")
+    
+    try:
+        for circuit in parsed[0].get("circuits", []):
+            for charger in circuit.get("chargers", []):
+                chargers.append(charger['id'])
+        logging.info(f"Chargers identified: {chargers}")
+    except (IndexError, KeyError):
+        logging.error("No chargers found. Is the charger registered to this account?")
 
     return chargers
 
@@ -86,13 +89,19 @@ if __name__ == "__main__":
             print("Successfully connected to Easee!")
 
             chargers = get_chargers()
-            print("The following chargers has been found on this account. "
-                  "Note that the charger ID shown here will make up the MQTT-topic.")
-            print("If you get a new charger, please re-run settings.")
-            settings['chargers'] = chargers
-            for charger in chargers:
-                print(charger)
-            easee_connection = True
+            if chargers:
+                print("The following chargers has been found on this account. "
+                    "Note that the charger ID shown here will make up the MQTT-topic.")
+                print("If you get a new charger, please re-run settings.")
+                settings['chargers'] = chargers
+                for charger in chargers:
+                    print(charger)
+                easee_connection = True
+            else:
+                print("Unable to find chargers on this account. Are "
+                        "charger(s) installed and registered?")
+                print("Exiting setup....")
+                quit()
     
     while mqtt_connection is False:
         mqtt_adress = input("Please input IP or adress of MQTT-broker: ")
